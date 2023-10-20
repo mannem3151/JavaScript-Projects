@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>pig_game</title>
+
+</head>
+<style>
+    .body{
+     height:100vh;
+     display:flex;
+     justify-content:center;
+     align-items:center;    
+    }
+    .container{
+        background-color: lightgreen;
+        position: relative;
+        width:auto;
+        height:auto;
+        display: flex;
+       
+    }
+    .player{
+        flex:50%;
+        padding:150px;
+        flex-direction: column;
+        display:flex;
+        align-items:center;
+        transition: all 0.75s;
+     
+        
+    }
+    .player--active{
+        background-color: green;
+
+    }
+    .player--active.current{
+        opacity:1;
+    }
+    
+    .tscore{
+        background-color: white;
+        border-radius:8px;
+        width:150px;
+        height:150px;
+        margin-bottom:80px;
+
+    }
+    .name{
+        text-align: center;
+        font-size:18px;
+        padding-top:10px;
+        padding-bottom:10px;
+
+    }
+    .score{
+      font-size:18px; 
+      color:rgb(93, 87, 87); 
+       
+    }
+    .pl{
+    margin-top:10px; 
+    font-size:16px;
+
+    }
+    .current{
+     background-color: white;
+        border-radius:8px;
+        width:150px;
+        height:100px;
+        }
+    .current-label{
+        text-transform: uppercase;
+        margin-bottom:1rem;
+        font-size: 18px;
+        color:#add;
+        text-align: center;
+
+    }
+    .current-score{
+        font-size:medium;
+        text-align: center;
+
+    }
+    .btn{
+      position:absolute;
+      left:50%;
+      transform:translate(-50%);
+      color: rgb(7,124,69);
+      font-size:30px;
+      cursor:pointer;
+      font-weight:bold;
+      border-radius:10px;
+      background-color: rgba(255, 255, 255, 0.6);
+      opacity: 1;
+      
+
+    }
+    .btn--new{
+     top:4rem;
+    }
+    .btn--roll{
+       top:25rem;
+    }
+    .btn--hold{
+      top:30rem;
+    }
+    .dice {
+    position: absolute;
+    left: 50%;
+    top: 13rem;
+    transform: translateX(-50%);
+    height:15vh;
+    width:15vh;
+}
+.player--winner{
+    background-color:#003612;
+
+}
+.player--winner.name{
+    font-weight: 700;
+    color:#c7365f;
+}
+.hidden{
+    display:none;
+}
+</style>
+<body>
+    <div class="container">
+        <section class="player player--0 player--active">
+          <div class="tscore">
+            <h2 class="name" id="name--0">Total Score <br>
+            <span class="pl">Player 1</span>
+            <p class="score" id="score--0">42</p>
+        </div>
+        </h2>
+        <div class="current">
+            <p class="current-label">Current Score</p>
+            <p class="current-score" id="current--0">0</p>
+        
+          </div>
+          </section>
+          <section class="player player--1">
+            <div class="tscore">
+              <h2 class="name" id="name--1">Total Score <br>
+              <span class="pl">Player 2</span>
+              <p class="score" id="score--1">27</p>
+          </div>
+          </h2>
+          <div class="current">
+              <p class="current-label">Current Score</p>
+              <p class="current-score" id="current--1">0</p>
+          
+            </div>
+            </section>
+            <img src="dice-3.png"
+            alt="Playing dice" class="dice" />
+          <button class="btn btn--new">Start Game</button>
+          <button class="btn btn--roll">Roll dice</button>
+          <button class="btn btn--hold">Hold</button>
+        
+    </div>
+</body>
+<script>
+  'use strict';
+ 
+const player0El = document.querySelector('.player--0');
+const player1El = document.querySelector('.player--1');
+const score0El = document.querySelector('#score--0');
+const score1El = document.getElementById('score--1');
+const current0El = document.getElementById('current--0');
+const current1El = document.getElementById('current--1');
+ 
+const diceEl = document.querySelector('.dice');
+const btnNew = document.querySelector('.btn--new');
+const btnRoll = document.querySelector('.btn--roll');
+const btnHold = document.querySelector('.btn--hold');
+ 
+let scores, currentScore, activePlayer, playing;
+btnRoll.addEventListener('click', function () {
+  if (playing) {
+   
+    // 1. Generating a random dice roll
+    const dice = Math.trunc(Math.random() * 6) + 1;
+ 
+    // 2. Display dice
+    diceEl.classList.remove('hidden');
+    diceEl.src = `dice-${dice}.png`;
+ 
+    // 3. Check for rolled 1
+    if (dice !== 1) {
+     
+      // Add dice to current score
+      currentScore += dice;
+      document.getElementById(
+        `current--${activePlayer}`
+      ).textContent = currentScore;
+    } else {
+     
+      // Switch to next player
+      switchPlayer();
+    }
+  }
+});
+const switchPlayer = function () {
+  document.getElementById(`current--${activePlayer}`).textContent = 0;
+  currentScore = 0;
+  activePlayer = activePlayer === 0 ? 1 : 0;
+  player0El.classList.toggle('player--active');
+  player1El.classList.toggle('player--active');
+};
+btnHold.addEventListener('click', function () {
+  if (playing) {
+   
+    // 1. Add current score to active player's score
+    scores[activePlayer] += currentScore;
+    // scores[1] = scores[1] + currentScore
+ 
+    document.getElementById(`score--${activePlayer}`)
+      .textContent = scores[activePlayer];
+ 
+    // 2. Check if player's score is >= 100
+    if (scores[activePlayer] >= 100) {
+     
+      // Finish the game
+      playing = false;
+      diceEl.classList.add('hidden');
+ 
+      document
+        .querySelector(`.player--${activePlayer}`)
+        .classList.add('player--winner');
+      document
+        .querySelector(`.player--${activePlayer}`)
+        .classList.remove('player--active');
+    } else {
+     
+      // Switch to the next player
+      switchPlayer();
+    }
+  }
+});
+const init = function () {
+  scores = [0, 0];
+  currentScore = 0;
+  activePlayer = 0;
+  playing = true;
+ 
+  score0El.textContent = 0;
+  score1El.textContent = 0;
+  current0El.textContent = 0;
+  current1El.textContent = 0;
+ 
+  diceEl.classList.add('hidden');
+  player0El.classList.remove('player--winner');
+  player1El.classList.remove('player--winner');
+  player0El.classList.add('player--active');
+  player1El.classList.remove('player--active');
+};
+init();
+ 
+ 
+ 
+</script>
+</html>
